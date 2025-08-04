@@ -191,13 +191,39 @@ install_kitten() {
     KITTEN_SOURCE="$SCRIPT_DIR/onepassword_kitten.py"
     KITTEN_DEST="$KITTY_CONFIG_DIR/onepassword_kitten.py"
     
+    # Check if we're running from a local directory or need to download
     if [[ ! -f "$KITTEN_SOURCE" ]]; then
-        print_error "onepassword_kitten.py not found in $SCRIPT_DIR"
-        exit 1
+        print_info "onepassword_kitten.py not found locally, downloading from GitHub..."
+        
+        # Download the Python file from GitHub
+        GITHUB_RAW_URL="https://raw.githubusercontent.com/mm-zacharydavison/kitty-kitten-1password/refs/heads/main/onepassword_kitten.py"
+        
+        if command_exists curl; then
+            if curl -sL "$GITHUB_RAW_URL" -o "$KITTEN_DEST"; then
+                print_success "Downloaded onepassword_kitten.py from GitHub"
+            else
+                print_error "Failed to download onepassword_kitten.py from GitHub"
+                exit 1
+            fi
+        elif command_exists wget; then
+            if wget -q "$GITHUB_RAW_URL" -O "$KITTEN_DEST"; then
+                print_success "Downloaded onepassword_kitten.py from GitHub"
+            else
+                print_error "Failed to download onepassword_kitten.py from GitHub"
+                exit 1
+            fi
+        else
+            print_error "Neither curl nor wget found. Cannot download kitten file."
+            print_info "Please install curl or wget, or download the repository manually."
+            exit 1
+        fi
+        
+        # Set the source to the downloaded file for fzf path configuration
+        KITTEN_SOURCE="$KITTEN_DEST"
+    else
+        # Copy the kitten from local directory
+        cp "$KITTEN_SOURCE" "$KITTEN_DEST"
     fi
-    
-    # Copy the kitten and customize it with the fzf path
-    cp "$KITTEN_SOURCE" "$KITTEN_DEST"
     
     # Update the fzf path in the Python script
     if [[ -n "$FZF_PATH" ]]; then

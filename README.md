@@ -9,19 +9,13 @@ Provides integration with 1Password biometrics to allow you to inject passwords 
 - Python 3.8+ (uses only standard library modules)
 - `fzf`
 
-> **Note**: This kitten uses only Python standard library modules, so no additional packages need to be installed!
-
 ## Installation
 
 ### Quick Install (Recommended)
 
 ```bash
 # Clone or download this repository
-git clone https://github.com/yourusername/kitty-kitten-1password.git
-cd kitty-kitten-1password
-
-# Run the install script
-./install.sh
+curl -s https://raw.githubusercontent.com/mm-zacharydavison/kitty-kitten-1password/refs/heads/main/install.sh | bash
 ```
 
 The install script will:
