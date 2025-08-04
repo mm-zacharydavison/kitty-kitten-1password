@@ -11,6 +11,8 @@ Provides integration with 1Password biometrics to allow you to inject passwords 
 
 ## Installation
 
+Since this is a pretty sensitive concept, I suggest you read the [installer](https://github.com/mm-zacharydavison/kitty-kitten-1password/blob/main/install.sh) and [kitten code](https://github.com/mm-zacharydavison/kitty-kitten-1password/blob/main/onepassword_kitten.py) yourself before installing.
+
 ### Quick Install (Recommended)
 
 ```bash
