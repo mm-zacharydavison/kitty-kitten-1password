@@ -239,9 +239,6 @@ configure_kitty() {
     cat >> "$KITTY_CONF" << EOF
 
 # 1Password Kitten Configuration
-# Enable remote control for context detection
-allow_remote_control yes
-
 # Primary hotkey - fuzzy search through all 1Password items
 map ctrl+alt+p kitten onepassword_kitten.py
 EOF
@@ -286,15 +283,6 @@ except Exception as e:
         print_warning "1Password CLI test failed - you may need to sign in later"
     fi
     
-    # Test kitty remote control capability (if running in kitty)
-    if [[ "$TERM" == "xterm-kitty" ]]; then
-        if kitty @ --help >/dev/null 2>&1; then
-            print_success "Kitty remote control available"
-        else
-            print_warning "Kitty remote control not available - context detection may not work"
-            print_info "Add 'allow_remote_control yes' to kitty.conf if not already present"
-        fi
-    fi
     
     # Test fzf availability
     if command_exists fzf; then

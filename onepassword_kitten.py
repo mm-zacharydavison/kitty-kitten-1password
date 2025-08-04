@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 
 import subprocess
-import sys
-import os
-import re
 import json
-import tempfile
-from pathlib import Path
 from typing import Optional, List, Dict
 
 # Import kitty modules only when running as a kitten
@@ -188,71 +183,6 @@ def select_with_numbered_list(items: List[Dict]) -> Optional[Dict]:
     
     return None
 
-def detect_context_from_screen() -> str:
-    """Try to detect context from terminal screen content"""
-    try:
-        # Try to get current window content using kitty remote control
-        result = subprocess.run(
-            ["kitty", "@", "get-text", "--extent=screen"],
-            capture_output=True, text=True, timeout=2
-        )
-        
-        if result.returncode == 0:
-            screen_text = result.stdout.strip()
-            return analyze_screen_content(screen_text)
-    except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError):
-        pass
-    
-    return ""
-
-def analyze_screen_content(screen_text: str) -> str:
-    """Analyze screen content to detect context for password search"""
-    if not screen_text:
-        return ""
-    
-    lines = screen_text.lower().split('\n')
-    recent_lines = lines[-10:]  # Look at last 10 lines
-    
-    # SSH connection patterns
-    ssh_patterns = [
-        r'ssh\s+([^@\s]+@)?([^@\s]+)',
-        r'connecting to ([^@\s]+)',
-        r'password for [^@\s]*@?([^@\s:]+)',
-        r'([^@\s]+).*password[:\s]*$'
-    ]
-    
-    for line in recent_lines:
-        for pattern in ssh_patterns:
-            match = re.search(pattern, line)
-            if match:
-                # Extract hostname/server name
-                hostname = match.group(1) if match.lastindex and match.lastindex >= 1 else ""
-                hostname = hostname.replace("@", "").strip()
-                if hostname and len(hostname) > 2:
-                    return hostname
-    
-    # Database connection patterns
-    db_patterns = [
-        r'mysql.*-h\s+([^\s]+)',
-        r'psql.*-h\s+([^\s]+)',
-        r'connecting to database.*([^\s]+)',
-    ]
-    
-    for line in recent_lines:
-        for pattern in db_patterns:
-            match = re.search(pattern, line)
-            if match and match.group(1):
-                return f"database {match.group(1)}"
-    
-    # Sudo/system authentication
-    if any('sudo' in line for line in recent_lines):
-        return "sudo"
-    
-    # Git operations
-    if any(re.search(r'git (push|pull|clone)', line) for line in recent_lines):
-        return "git"
-    
-    return ""
 
 def main(args: List[str]) -> str:
     """Main entry point for the kitten"""
